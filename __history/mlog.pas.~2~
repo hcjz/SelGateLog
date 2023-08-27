@@ -1,0 +1,21 @@
+unit mlog;
+
+interface
+ uses
+  Windows;
+  type
+  myLog = class
+  public
+
+  protected
+    // procedure Run(); override;
+    procedure log(Sender: TObject);
+  public
+
+  end;
+implementation
+        procedure myLog.log(Sender: TObject);
+        begin
+
+        end;
+end.

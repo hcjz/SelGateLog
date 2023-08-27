@@ -1,0 +1,39 @@
+unit mlog;
+
+interface
+
+uses
+  Windows,JclDebug, JclFileUtils, JclDebugSerialization;
+
+type
+  myLog = class
+  public
+
+  protected
+    // procedure Run(); override;
+
+  public
+         procedure log(msg:pchar);
+  end;
+
+implementation
+
+procedure myLog.log(msg:pchar);
+var
+  TID: DWORD;
+  ThreadInfoList: TJclThreadInfoList;
+  ThreadName, ExceptMessage, ExceptInfo: string;
+begin
+ JclStartExceptionTracking;
+  JclDebugThreadList.SaveCreationStack := True;
+
+   TID := GetCurrentThreadId;
+   ThreadInfoList := TJclThreadInfoList.Create;
+    ThreadInfoList.Add.FillFromExceptThread(ThreadInfoList.GatherOptions);
+      ThreadInfoList.Gather(TID);
+       ExceptInfo := ThreadInfoList.AsString;
+
+         MessageBox(0, pchar(ExceptInfo), PChar('“Ï≥£msg'), MB_OK)  ;
+end;
+
+end.
