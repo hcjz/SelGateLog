@@ -264,7 +264,7 @@ constructor TIOCPManager.Create();
 begin
   g_pLogMgr.Add('正在停止服务...3');
   FIOCPServer := TIOCPServer.Create;
-  //FServerInfoList := FIOCPServer.FAcceptExSocket.ServerInfo;
+  FServerInfoList := FIOCPServer.FAcceptExSocket.ServerInfo;
   FCount := 0;
 end;
 

@@ -197,7 +197,7 @@ begin
   g_ProcMsgThread.Enabled := True;
 
   g_pLogMgr.Add('正在启动服务 ...');
- // SendGameCenterMsg(SG_STARTNOW, _STR_NOW_START);
+ SendGameCenterMsg(SG_STARTNOW, _STR_NOW_START);
 
   g_pConfig.LoadConfig();
 
