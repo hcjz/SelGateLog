@@ -118,10 +118,18 @@ end;
 
 constructor TIOCPServer.Create();
 begin
-  FUserList := TUserManager.Create(MAX_GAME_USER);
-  FSendSocket := TIOCPWriter.Create(MAX_GAME_USER, FUserList);
-  FRecvSocket := TIOCPReader.Create(MAX_GAME_USER, FSendSocket, FUserList);
-  FAcceptExSocket := TIOCPAccepter.Create(MAX_LOGIN_USER, FUserList);
+  //内存泄漏错误原因
+  //FUserList := TUserManager.Create(MAX_GAME_USER);
+
+
+//  FSendSocket := TIOCPWriter.Create(MAX_GAME_USER, FUserList);
+//  FRecvSocket := TIOCPReader.Create(MAX_GAME_USER, FSendSocket, FUserList);
+//  FAcceptExSocket := TIOCPAccepter.Create(MAX_LOGIN_USER, FUserList);
+
+  FUserList := TUserManager.Create(10);
+ //FSendSocket := TIOCPWriter.Create(10, FUserList);
+  //FRecvSocket := TIOCPReader.Create(10, FSendSocket, FUserList);
+  //FAcceptExSocket := TIOCPAccepter.Create(10, FUserList);
 end;
 
 destructor TIOCPServer.Destroy;
@@ -254,6 +262,7 @@ end;
 
 constructor TIOCPManager.Create();
 begin
+  g_pLogMgr.Add('正在停止服务...3');
   FIOCPServer := TIOCPServer.Create;
   FServerInfoList := FIOCPServer.FAcceptExSocket.ServerInfo;
   FCount := 0;

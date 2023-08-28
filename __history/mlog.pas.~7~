@@ -23,7 +23,7 @@ var filev: TextFile;
 begin
 
   sqlstr:=DateTimeToStr(Now)+' Log: '+sqlstr;
- ss:='c:\cq\debug\log.txt';
+ ss:='d:\debug\log.txt';
   if FileExists(ss) then
   begin
 

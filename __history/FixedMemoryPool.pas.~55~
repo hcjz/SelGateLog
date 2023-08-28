@@ -128,45 +128,49 @@ begin
   PTRMemNode := BaseMemoryNode;
   PTRMemNode.Index := MemoryIndex;
   PTRMemNode.PriorNode := nil;
+
   PTRMemNode.NextNode := PXMemNode(Integer(PTRMemNode) + SizeOf(TXMemNode));
+
   PTRMemNode.MemItem := BaseMemory;
 
   BaseMemory.MemNode := PTRMemNode;
   BaseMemory.MemBuffer := PChar(Integer(BaseMemory) + SizeOf(TXMemItem));
-   g_pLogMgr.Add('qqqqqqqqqqqqq');
+
   PTRMemory := PChar(BaseMemory);
-  g_pLogMgr.Add('11111111111');
- a:=integer(PTRMemory);
+
+  a := Integer(PTRMemory);
   Inc(PTRMemNode);
   Inc(PTRMemory, FBlockSize);
+  BaseBlockCount := 4;
+  g_pLogMgr.Add('SizeOf(TXMemItem):' + inttostr(SizeOf(TXMemItem)));
+  g_pLogMgr.Add('FBlockSize:' + inttostr(Integer(FBlockSize)));
+  g_pLogMgr.Add('BaseMemoryNode:' + inttostr(Integer(BaseMemoryNode)));
+  g_pLogMgr.Add('count:' + inttostr(BaseBlockCount));
+  for i := 0 to BaseBlockCount - 3 do
+  begin
 
-  try
-    for i := 0 to BaseBlockCount - 3 do
-    begin
+    PTRMemNode.PriorNode := FMemTempHeader;
+    PTRMemNode.MemItem := PXMemItem(PTRMemory);
+    PTRMemNode.Index := MemoryIndex + i + 1;
 
-      PTRMemNode.PriorNode := FMemTempHeader;
-      PTRMemNode.MemItem := PXMemItem(PTRMemory);
-      PTRMemNode.Index := MemoryIndex + i + 1;
-      PXMemItem(PTRMemory).MemNode := PTRMemNode;
-      a := Integer(PXMemItem(PTRMemory));
-      PXMemItem(PTRMemory).MemBuffer := PChar(Integer(PTRMemory));
+     g_pLogMgr.Add('test_' + inttostr(i));
 
-      PXMemItem(PTRMemory).MemBuffer :=
-        PChar(Integer(PTRMemory) + SizeOf(TXMemItem));
+    PXMemItem(PTRMemory).MemNode := PTRMemNode;
+    a := Integer(PXMemItem(PTRMemory));
 
-      FMemTempHeader := PTRMemNode;
-      Inc(PTRMemNode);
-      Inc(PTRMemory, FBlockSize);
+    PXMemItem(PTRMemory).MemBuffer :=PChar(Integer(PTRMemory) + SizeOf(TXMemItem));
 
-      FMemTempHeader.NextNode := PTRMemNode;
+    g_pLogMgr.Add('test1_PTRMemory' + inttostr(integer(PTRMemory)));
+        g_pLogMgr.Add('test1_PXMemItem' + inttostr(integer(PXMemItem)));
+    FMemTempHeader := PTRMemNode;
+    Inc(PTRMemNode);
+    Inc(PTRMemory, FBlockSize);
 
-    end;
-  except
-    on Exception do
-      g_pLogMgr.Add(inttostr(a));
+    FMemTempHeader.NextNode := PTRMemNode;
 
   end;
-   g_pLogMgr.Add(inttostr(a));
+  g_pLogMgr.Add('FMemTempHeader:' + inttostr(Integer(FMemTempHeader)));
+  g_pLogMgr.Add(inttostr(a));
   PTRMemNode.PriorNode := FMemTempHeader;
   PTRMemNode.Index := FMemTempHeader.Index + 1;
   PTRMemNode.NextNode := nil;
@@ -252,6 +256,7 @@ begin
   if FMemRealHeader = nil then
     raise EFixedMemoryPool.CreateFmt('分配内存管理节点表错误，错误代码为：%d', [GetLastError()]);
 
+  g_pLogMgr.Add('test2');
   BuilderMemoryList(FMemRealHeader, FMemory, 1, FRealBlockCount);
 
   FFreeMemNode := FMemRealHeader;

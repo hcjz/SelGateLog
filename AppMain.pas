@@ -150,11 +150,11 @@ var
 
   ts: TMemoryStream;
 
+
 begin
 
-  //Application.OnException := OnProgramException;
+  Application.OnException := OnProgramException;
   g_ProcMsgThread := TProcMsgThread.Create;
-
   g_hMainWnd := Self.Handle;
   g_hGameCenterHandle := Str_ToInt(ParamStr(1), 0);
   // 运行到此，g_hGameCenterHandle值是 0
@@ -187,11 +187,12 @@ begin
   LoadBlockIPAreaList();
 
 
- //SetTimer(g_hMainWnd, _IDM_TIMER_STARTSERVICE, 100, Pointer(@OnTimerProc));
+ SetTimer(g_hMainWnd, _IDM_TIMER_STARTSERVICE, 100, Pointer(@OnTimerProc));
 end;
 
 procedure TFormMain.FormDestroy(Sender: TObject);
 begin
+
   g_DCP_mars.Free;
   g_pConfig.Free;
   g_pLogMgr.Free;
@@ -337,7 +338,7 @@ procedure TFormMain.MENU_VIEW_HELP_ABOUTClick(Sender: TObject);
 var
   szStr: string;
 begin
-    PInteger(nil)^ := 0;
+
   g_pLogMgr.Add('……欢迎使用LEGEND系列软件……');
   // g_pLogMgr.Add(VMProtectDecryptStringA(PChar(Format('最高限制: %d 人', [MAX_GAME_USER]))));
   g_pLogMgr.Add('程序名称: 角色网关');
@@ -603,6 +604,7 @@ var
   sData: string;
   wIdent: Word;
 begin
+ g_pLogMgr.Add('MyMessage');
   wIdent := HiWord(MsgData.From);
   // sData := StrPas(MsgData.CopyDataStruct^.lpData);
   case wIdent of
@@ -621,29 +623,7 @@ end;
 //--------------------------------------------------------------------------------------------------
 // Simple VCL application unhandled exception handler using JclDebug
 //--------------------------------------------------------------------------------------------------
- procedure writeWorkLog(sqlstr: string);
-var filev: TextFile;
-  ss: string;
-begin
 
-  sqlstr:=DateTimeToStr(Now)+' Log: '+sqlstr;
-  ss:=extractFilePath(Application.ExeName)+'\log.txt';
-
-   // MemoLog.Lines.Add(DateTimeToStr(Now));
-  if FileExists(ss) then
-  begin
-  g_pLogMgr.Add(PChar('2')+ss);
-    AssignFile(filev, ss);
-    append(filev);
-    writeln(filev, sqlstr);
-  end else begin
-    AssignFile(filev, ss);
-    ReWrite(filev);
-    writeln(filev, sqlstr);
-    g_pLogMgr.Add(PChar('3')+ss);
-  end;
-  CloseFile(filev);
-end;
 procedure TFormMain.ApplicationEventsException(Sender: TObject; E: Exception);
 var filev: TextFile;
   ss: string;

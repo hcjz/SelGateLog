@@ -12,7 +12,7 @@ uses
 
 type
   TFormMain = class(TForm)
-    // ExceptionLogMemo: TMemo;
+    //ExceptionLogMemo: TMemo;
     MainMenu: TMainMenu;
     MENU_CONTROL: TMenuItem;
     MENU_CONTROL_START: TMenuItem;
@@ -33,6 +33,7 @@ type
     Label2: TLabel;
     ApplicationEvents: TApplicationEvents;
 
+
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -47,8 +48,8 @@ type
     procedure MENU_OPTION_IPFILTERClick(Sender: TObject);
     procedure MENU_CONTROL_CLEAELOGClick(Sender: TObject);
     procedure MENU_CONTROL_RELOADCONFIGClick(Sender: TObject);
-    // å¼‚å¸¸å¤„ç†
-    procedure ApplicationEventsException(Sender: TObject; E: Exception);
+    //Òì³£´¦Àí
+       procedure ApplicationEventsException(Sender: TObject; E: Exception);
   private
     { Private declarations }
     str_EndPtr: String;
@@ -64,9 +65,9 @@ type
     procedure CltOnClose(Sender: TObject);
     procedure ClientClosed(UserOBJ: pTUserOBJ; wParam, lParam: DWORD);
     procedure UserEnterEvent(Sender: TUserManager; const UserOBJ: pTUserOBJ);
-    // ç”¨æˆ·è¿›å…¥äº‹ä»¶
+    // ÓÃ»§½øÈëÊÂ¼ş
     procedure UserLeaveEvent(Sender: TUserManager; const UserOBJ: pTUserOBJ);
-    // ç”¨æˆ·ç¦»å¼€äº‹ä»¶
+    // ÓÃ»§Àë¿ªÊÂ¼ş
     procedure UserReadBuffer(UserOBJ: TObject; const Buffer: PChar;
       var BufLen: DWORD; var Succeed: BOOL);
 
@@ -80,11 +81,17 @@ implementation
 {$R *.dfm}
 
 uses
-  FuncForComm, ClientSession, Grobal2, Misc, ConfigManager, LogManager, HUtil32,
+   FuncForComm, ClientSession, Grobal2, Misc, ConfigManager, LogManager, HUtil32,
   IPAddrFilter, GeneralConfig, PacketRuleConfig,
-  SHSocket, uTeaSet, Mars, jcldebug;
+  SHSocket, uTeaSet, Mars,jcldebug;
 
-// è¯¥å‡½æ•°åªåœ¨æœ¬å•å…ƒæ–‡ä»¶ä¸­æœ‰å®šä¹‰ï¼Œä»æœªè¢«è°ƒç”¨è¿‡
+
+
+
+
+
+
+// ¸Ãº¯ÊıÖ»ÔÚ±¾µ¥ÔªÎÄ¼şÖĞÓĞ¶¨Òå£¬´ÓÎ´±»µ÷ÓÃ¹ı
 procedure GetEnDeFunc();
 begin
   // g_pEncodeFunc := LPGETDYNCODE(g_pszEndePtr)(1);
@@ -102,7 +109,7 @@ procedure TFormMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   if g_fCanClose then
     Exit;
-  if Application.MessageBox('æ˜¯å¦ç¡®è®¤é€€å‡ºæœåŠ¡å™¨ï¼Ÿ', 'ç¡®è®¤ä¿¡æ¯', MB_YESNO + MB_ICONQUESTION) = IDYES
+  if Application.MessageBox('ÊÇ·ñÈ·ÈÏÍË³ö·şÎñÆ÷£¿', 'È·ÈÏĞÅÏ¢', MB_YESNO + MB_ICONQUESTION) = IDYES
   then
   begin
     if g_fServiceStarted then
@@ -115,12 +122,10 @@ begin
   else
     CanClose := False;
 end;
-
-procedure test1();
-begin
-  g_pLogMgr.Add('121334441');
-end;
-
+  procedure test1();
+  begin
+        g_pLogMgr.Add('121334441');
+  end;
 procedure TFormMain.FormCreate(Sender: TObject);
 var
   nX, nY: Integer;
@@ -146,44 +151,43 @@ var
   ts: TMemoryStream;
 
 begin
-  if 1 = 2 then
+
+  //Application.OnException := OnProgramException;
+  g_ProcMsgThread := TProcMsgThread.Create;
+
+  g_hMainWnd := Self.Handle;
+  g_hGameCenterHandle := Str_ToInt(ParamStr(1), 0);
+  // ÔËĞĞµ½´Ë£¬g_hGameCenterHandleÖµÊÇ 0
+  nX := Str_ToInt(ParamStr(2), -1);
+  nY := Str_ToInt(ParamStr(3), -1);
+  if (nX >= 0) or (nY >= 0) then
   begin
-    // Application.OnException := OnProgramException;
-    g_ProcMsgThread := TProcMsgThread.Create;
-
-    g_hMainWnd := Self.Handle;
-    g_hGameCenterHandle := Str_ToInt(ParamStr(1), 0);
-    // è¿è¡Œåˆ°æ­¤ï¼Œg_hGameCenterHandleå€¼æ˜¯ 0
-    nX := Str_ToInt(ParamStr(2), -1);
-    nY := Str_ToInt(ParamStr(3), -1);
-    if (nX >= 0) or (nY >= 0) then
-    begin
-      Left := nX;
-      Top := nY;
-    end;
-    g_pLogMgr := TLogMgr.Create(MemoLog.Handle);
-    g_pConfig := TConfigMgr.Create(_STR_CONFIG_FILE);
-
-    SendGameCenterMsg(SG_FORMHANDLE, IntToStr(g_hMainWnd));
-    GridSocketInfo.DefaultDrawing := False;
-    GridSocketInfo.Cells[0, 0] := _STR_GRID_IP;
-    GridSocketInfo.Cells[1, 0] := _STR_GRID_PORT;
-    GridSocketInfo.Cells[2, 0] := _STR_GRID_CONNECT_STATUS;
-    GridSocketInfo.Cells[3, 0] := _STR_GRID_ONLINE_USER;
-
-    // 1
-    g_DCP_mars := TDCP_mars.Create(nil); // åˆå§‹åŒ–åŠ å¯†æ ¸å¿ƒ
-    g_nEndeBufLen := 0;
-    New(g_pLTCrc);
-    g_pLTCrc^ := 0;
-
-    mainhwnd := Handle;
-
-    LoadBlockIPList();
-    LoadBlockIPAreaList();
+    Left := nX;
+    Top := nY;
   end;
+  g_pLogMgr := TLogMgr.Create(MemoLog.Handle);
+  g_pConfig := TConfigMgr.Create(_STR_CONFIG_FILE);
 
-  // SetTimer(g_hMainWnd, _IDM_TIMER_STARTSERVICE, 100, Pointer(@OnTimerProc));
+  SendGameCenterMsg(SG_FORMHANDLE, IntToStr(g_hMainWnd));
+  GridSocketInfo.DefaultDrawing := False;
+  GridSocketInfo.Cells[0, 0] := _STR_GRID_IP;
+  GridSocketInfo.Cells[1, 0] := _STR_GRID_PORT;
+  GridSocketInfo.Cells[2, 0] := _STR_GRID_CONNECT_STATUS;
+  GridSocketInfo.Cells[3, 0] := _STR_GRID_ONLINE_USER;
+
+  // 1
+  g_DCP_mars := TDCP_mars.Create(nil); // ³õÊ¼»¯¼ÓÃÜºËĞÄ
+  g_nEndeBufLen := 0;
+  New(g_pLTCrc);
+  g_pLTCrc^ := 0;
+
+  mainhwnd := Handle;
+
+  LoadBlockIPList();
+  LoadBlockIPAreaList();
+
+
+ //SetTimer(g_hMainWnd, _IDM_TIMER_STARTSERVICE, 100, Pointer(@OnTimerProc));
 end;
 
 procedure TFormMain.FormDestroy(Sender: TObject);
@@ -201,10 +205,10 @@ begin
   begin
     Canvas.FillRect(Rect);
     DrawText(Canvas.Handle, PChar(Cells[ACol, ARow]), Length(Cells[ACol, ARow]),
-      Rect, // åŒ…å«æ–‡å­—çš„çŸ©å½¢
-      DT_CENTER or // æ°´å¹³å±…ä¸­ DT_RIGHT æ°´å¹³å±…å³
-      DT_SINGLELINE or // ä¸æŠ˜è¡Œ
-      DT_VCENTER); // å‚ç›´å±…ä¸­
+      Rect, // °üº¬ÎÄ×ÖµÄ¾ØĞÎ
+      DT_CENTER or // Ë®Æ½¾ÓÖĞ DT_RIGHT Ë®Æ½¾ÓÓÒ
+      DT_SINGLELINE or // ²»ÕÛĞĞ
+      DT_VCENTER); // ´¹Ö±¾ÓÖĞ
   end;
 end;
 
@@ -212,7 +216,7 @@ procedure TFormMain.MemoLogDblClick(Sender: TObject);
 begin
   if MemoLog.Lines.Count = 0 then
     Exit;
-  if Application.MessageBox('æ˜¯å¦ç¡®è®¤æ¸…é™¤æ˜¾ç¤ºçš„æ—¥å¿—ä¿¡æ¯ï¼Ÿ', 'ç¡®è®¤ä¿¡æ¯',
+  if Application.MessageBox('ÊÇ·ñÈ·ÈÏÇå³ıÏÔÊ¾µÄÈÕÖ¾ĞÅÏ¢£¿', 'È·ÈÏĞÅÏ¢',
     MB_OKCANCEL + MB_ICONQUESTION) <> IDOK then
     Exit;
   MemoLog.Clear;
@@ -236,7 +240,7 @@ begin
   LoadBlockIPList();
   LoadBlockIPAreaList();
 
-  g_pLogMgr.Add('é‡æ–°åŠ è½½é…ç½®å®Œæˆ...');
+  g_pLogMgr.Add('ÖØĞÂ¼ÓÔØÅäÖÃÍê³É...');
 end;
 
 procedure TFormMain.MENU_CONTROL_STARTClick(Sender: TObject);
@@ -333,12 +337,12 @@ procedure TFormMain.MENU_VIEW_HELP_ABOUTClick(Sender: TObject);
 var
   szStr: string;
 begin
-  PInteger(nil)^ := 0;
-  g_pLogMgr.Add('â€¦â€¦æ¬¢è¿ä½¿ç”¨LEGENDç³»åˆ—è½¯ä»¶â€¦â€¦');
-  // g_pLogMgr.Add(VMProtectDecryptStringA(PChar(Format('æœ€é«˜é™åˆ¶: %d äºº', [MAX_GAME_USER]))));
-  g_pLogMgr.Add('ç¨‹åºåç§°: è§’è‰²ç½‘å…³');
-  g_pLogMgr.Add('ç¨‹åºç‰ˆæœ¬: 2019/01/25');
-  g_pLogMgr.Add('ç¨‹åºç½‘ç«™: http://www.legendm2.com');
+    PInteger(nil)^ := 0;
+  g_pLogMgr.Add('¡­¡­»¶Ó­Ê¹ÓÃLEGENDÏµÁĞÈí¼ş¡­¡­');
+  // g_pLogMgr.Add(VMProtectDecryptStringA(PChar(Format('×î¸ßÏŞÖÆ: %d ÈË', [MAX_GAME_USER]))));
+  g_pLogMgr.Add('³ÌĞòÃû³Æ: ½ÇÉ«Íø¹Ø');
+  g_pLogMgr.Add('³ÌĞò°æ±¾: 2019/01/25');
+  g_pLogMgr.Add('³ÌĞòÍøÕ¾: http://www.legendm2.com');
   g_DCP_mars.InitStr('');
   try
     szStr := g_DCP_mars.DecryptString(g_pszDecodeKey^);
@@ -346,7 +350,9 @@ begin
     szStr := '';
   end;
   if szStr <> '' then
-    g_pLogMgr.Add(PChar('é…å¥—ç½‘å…³: ' + szStr));
+    g_pLogMgr.Add(PChar('ÅäÌ×Íø¹Ø: ' + szStr));
+
+
 
 end;
 
@@ -358,7 +364,7 @@ begin
   g_pLogMgr.Add('test1');
   with m_xRunServerList.IOCPServer do
   begin
-    g_pLogMgr.Add('test2');
+  g_pLogMgr.Add('test2');
     UserManager.OnUserEnter := Self.UserEnterEvent;
     UserManager.OnUserLeave := Self.UserLeaveEvent;
     Reader.OnReadEvent := Self.UserReadBuffer;
@@ -383,7 +389,7 @@ begin
   end
   else
   begin
-    MessageBox(0, 'ç›‘å¬ç«¯å£æ•°é‡ä¸èƒ½å°‘äº1ä¸ª', 'é”™è¯¯', MB_OK);
+    MessageBox(0, '¼àÌı¶Ë¿ÚÊıÁ¿²»ÄÜÉÙÓÚ1¸ö', '´íÎó', MB_OK);
   end;
 end;
 
@@ -471,7 +477,7 @@ end;
 procedure TFormMain.CltOnClose(Sender: TObject);
 begin
   if g_pLogMgr.CheckLevel(5) then
-    g_pLogMgr.Add('æœåŠ¡å™¨è¿æ¥å·²å…³é—­: ' + TClientThread(Sender).ServerIP + ':' +
+    g_pLogMgr.Add('·şÎñÆ÷Á¬½ÓÒÑ¹Ø±Õ: ' + TClientThread(Sender).ServerIP + ':' +
       IntToStr(TClientThread(Sender).ServerPort));
   with m_xRunServerList.IOCPServer do
     Writer.BroadUserMsg(0, Integer(Sender), ClientClosed);
@@ -612,44 +618,70 @@ begin
   end;
 end;
 
-// --------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 // Simple VCL application unhandled exception handler using JclDebug
-// --------------------------------------------------------------------------------------------------
-
-procedure TFormMain.ApplicationEventsException(Sender: TObject; E: Exception);
-var
-  filev: TextFile;
+//--------------------------------------------------------------------------------------------------
+ procedure writeWorkLog(sqlstr: string);
+var filev: TextFile;
   ss: string;
 begin
 
+  sqlstr:=DateTimeToStr(Now)+' Log: '+sqlstr;
+  ss:=extractFilePath(Application.ExeName)+'\log.txt';
+
+   // MemoLog.Lines.Add(DateTimeToStr(Now));
+  if FileExists(ss) then
+  begin
+  g_pLogMgr.Add(PChar('2')+ss);
+    AssignFile(filev, ss);
+    append(filev);
+    writeln(filev, sqlstr);
+  end else begin
+    AssignFile(filev, ss);
+    ReWrite(filev);
+    writeln(filev, sqlstr);
+    g_pLogMgr.Add(PChar('3')+ss);
+  end;
+  CloseFile(filev);
+end;
+procedure TFormMain.ApplicationEventsException(Sender: TObject; E: Exception);
+var filev: TextFile;
+  ss: string;
+begin
+
+
   // Log time stamp
-  // writeWorkLog('1111111111111111111');
+   // writeWorkLog('1111111111111111111');
   MemoLog.Lines.Add(DateTimeToStr(Now));
 
   // Log unhandled exception stack info to ExceptionLogMemo
   JclLastExceptStackListToStrings(MemoLog.Lines, False, True, True, False);
 
   // Insert empty line
-  MemoLog.Lines.Add('');
+ MemoLog.Lines.Add('');
 
   // Display default VCL unhandled exception dialog
   Application.ShowException(E);
 
 end;
 
-initialization
 
-// Enable raw mode (default mode uses stack frames which aren't always generated by the compiler)
-Include(JclStackTrackingOptions, stRawMode);
-// Disable stack tracking in dynamically loaded modules (it makes stack tracking code a bit faster)
-Include(JclStackTrackingOptions, stStaticModuleList);
 
-// Initialize Exception tracking
-JclStartExceptionTracking;
+
+
+   initialization
+
+  // Enable raw mode (default mode uses stack frames which aren't always generated by the compiler)
+  Include(JclStackTrackingOptions, stRawMode);
+  // Disable stack tracking in dynamically loaded modules (it makes stack tracking code a bit faster)
+  Include(JclStackTrackingOptions, stStaticModuleList);
+
+  // Initialize Exception tracking
+  JclStartExceptionTracking;
 
 finalization
 
-// Uninitialize Exception tracking
-JclStopExceptionTracking;
+  // Uninitialize Exception tracking
+  JclStopExceptionTracking;
 
 end.

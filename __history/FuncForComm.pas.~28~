@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, ClientSession,
-  WinSock2, ThreadPool, Protocol, SDK, ExtCtrls;
+  WinSock2, ThreadPool, Protocol, SDK, ExtCtrls,mlog,jcldebug;
 
 type
   TProcMsgThread = class(TTimer)
@@ -188,30 +188,9 @@ begin
 end;
 
 
- procedure writeWorkLog(sqlstr: string);
-var filev: TextFile;
-  ss: string;
-begin
 
-  sqlstr:=DateTimeToStr(Now)+' Log: '+sqlstr;
- ss:='d:\debug\log.txt';
-
-   // MemoLog.Lines.Add(DateTimeToStr(Now));
-  if FileExists(ss) then
-  begin
-  g_pLogMgr.Add(PChar('2')+ss);
-    AssignFile(filev, ss);
-    append(filev);
-    writeln(filev, sqlstr);
-  end else begin
-    AssignFile(filev, ss);
-    ReWrite(filev);
-    writeln(filev, sqlstr);
-    g_pLogMgr.Add(PChar('3')+ss);
-  end;
-  CloseFile(filev);
-end;
 procedure StartService();
+var ml:myLog;
 begin
   g_fServiceStarted := True;
 
@@ -229,31 +208,39 @@ begin
       Caption := g_pConfig.m_szTitle;
       MENU_CONTROL_START.Enabled := False;
       MENU_CONTROL_STOP.Enabled := True;
+      sleep(3000);
 
       FormMain.m_xRunServerList := TIOCPManager.Create;
-    
-      FormMain.m_xGameServerList := TGameServerManager.Create;
-
-      FormMain.InitIOCPServer;
+//
+//      FormMain.m_xGameServerList := TGameServerManager.Create;
+//
+//      FormMain.InitIOCPServer;
 
     end;
   except
     on e: exception do
     begin
-     g_pLogMgr.Add(e.StackTrace);
+      g_pLogMgr.Add(e.StackTrace);
       g_pLogMgr.Add(e.ClassName);
-       g_pLogMgr.Add(e.Message);
+      g_pLogMgr.Add(e.Message);
+
+         ml:= mylog.create;
+        ml.log(pchar(e.StackTrace));
+
+
+
+       ml.Free;
     end;
-//
+
   end;
 
   g_pLogMgr.Add('服务已启动成功...');
 
-  SetTimer(g_hMainWnd, _IDM_TIMER_KEEP_ALIVE, 4 * 1000, Pointer(@OnTimerProc));
+  //SetTimer(g_hMainWnd, _IDM_TIMER_KEEP_ALIVE, 4 * 1000, Pointer(@OnTimerProc));
   // 每间隔4秒钟向服务器发送一次心跳数据
-  SetTimer(g_hMainWnd, _IDM_TIMER_THREAD_INFO, 1000, Pointer(@OnTimerProc));
+  //SetTimer(g_hMainWnd, _IDM_TIMER_THREAD_INFO, 1000, Pointer(@OnTimerProc));
 
-  FormMain.MENU_VIEW_HELP_ABOUTClick(nil);
+ // FormMain.MENU_VIEW_HELP_ABOUTClick(nil);
   SendGameCenterMsg(SG_STARTOK, _STR_STARTED);
 end;
 

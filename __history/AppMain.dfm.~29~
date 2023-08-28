@@ -3,7 +3,7 @@ object FormMain: TFormMain
   Top = 336
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'FormMain'
-  ClientHeight = 229
+  ClientHeight = 209
   ClientWidth = 312
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -37,7 +37,6 @@ object FormMain: TFormMain
     000FC000000FC000000FC000000FC000000FE000000FE000000FE000000FF000
     0007F0000003F8000061FC0000F8FE0001FCFF8003FEFFE00FFFFFFFFFFF}
   Menu = MainMenu
-  OldCreateOrder = False
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -45,7 +44,7 @@ object FormMain: TFormMain
   TextHeight = 12
   object Splitter: TSplitter
     Left = 0
-    Top = 114
+    Top = 94
     Width = 312
     Height = 1
     Cursor = crVSplit
@@ -63,7 +62,7 @@ object FormMain: TFormMain
   end
   object Label2: TLabel
     Left = 0
-    Top = 115
+    Top = 95
     Width = 312
     Height = 12
     Align = alBottom
@@ -73,7 +72,7 @@ object FormMain: TFormMain
   end
   object GridSocketInfo: TStringGrid
     Left = 0
-    Top = 127
+    Top = 107
     Width = 312
     Height = 83
     Align = alBottom
@@ -98,12 +97,22 @@ object FormMain: TFormMain
       42
       53
       105)
+    RowHeights = (
+      15
+      15
+      15
+      15
+      15
+      15
+      15
+      15
+      15)
   end
   object MemoLog: TMemo
     Left = 0
     Top = 0
     Width = 312
-    Height = 114
+    Height = 94
     Align = alClient
     Color = clBlack
     Font.Charset = ANSI_CHARSET
@@ -116,10 +125,11 @@ object FormMain: TFormMain
     ReadOnly = True
     TabOrder = 1
     OnDblClick = MemoLogDblClick
+    ExplicitTop = 7
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 210
+    Top = 190
     Width = 312
     Height = 19
     Panels = <
@@ -175,5 +185,10 @@ object FormMain: TFormMain
         OnClick = MENU_VIEW_HELP_ABOUTClick
       end
     end
+  end
+  object ApplicationEvents: TApplicationEvents
+    OnException = ApplicationEventsException
+    Left = 128
+    Top = 32
   end
 end

@@ -125,7 +125,6 @@ object FormMain: TFormMain
     ReadOnly = True
     TabOrder = 1
     OnDblClick = MemoLogDblClick
-    ExplicitTop = 7
   end
   object StatusBar: TStatusBar
     Left = 0

@@ -31,7 +31,7 @@ type
     StatusBar: TStatusBar;
     Label1: TLabel;
     Label2: TLabel;
-    ApplicationEvents1: TApplicationEvents;
+    ApplicationEvents: TApplicationEvents;
 
 
     procedure FormCreate(Sender: TObject);
@@ -48,6 +48,8 @@ type
     procedure MENU_OPTION_IPFILTERClick(Sender: TObject);
     procedure MENU_CONTROL_CLEAELOGClick(Sender: TObject);
     procedure MENU_CONTROL_RELOADCONFIGClick(Sender: TObject);
+    //异常处理
+       procedure ApplicationEventsException(Sender: TObject; E: Exception);
   private
     { Private declarations }
     str_EndPtr: String;
@@ -68,8 +70,7 @@ type
     // 用户离开事件
     procedure UserReadBuffer(UserOBJ: TObject; const Buffer: PChar;
       var BufLen: DWORD; var Succeed: BOOL);
-      //异常处理
-       procedure ApplicationEventsException(Sender: TObject; E: Exception);
+
   end;
 
 var
@@ -80,9 +81,9 @@ implementation
 {$R *.dfm}
 
 uses
-  jcldebug, FuncForComm, ClientSession, Grobal2, Misc, ConfigManager, LogManager, HUtil32,
+   FuncForComm, ClientSession, Grobal2, Misc, ConfigManager, LogManager, HUtil32,
   IPAddrFilter, GeneralConfig, PacketRuleConfig,
-  SHSocket, uTeaSet, Mars;
+  SHSocket, uTeaSet, Mars,jcldebug;
 
 
 
@@ -151,7 +152,7 @@ var
 
 begin
 
-  //Application.OnException := OnProgramException;
+  Application.OnException := OnProgramException;
   g_ProcMsgThread := TProcMsgThread.Create;
 
   g_hMainWnd := Self.Handle;
@@ -186,7 +187,7 @@ begin
   LoadBlockIPAreaList();
 
 
-  SetTimer(g_hMainWnd, _IDM_TIMER_STARTSERVICE, 100, Pointer(@OnTimerProc));
+ SetTimer(g_hMainWnd, _IDM_TIMER_STARTSERVICE, 100, Pointer(@OnTimerProc));
 end;
 
 procedure TFormMain.FormDestroy(Sender: TObject);
@@ -336,6 +337,7 @@ procedure TFormMain.MENU_VIEW_HELP_ABOUTClick(Sender: TObject);
 var
   szStr: string;
 begin
+
   g_pLogMgr.Add('……欢迎使用LEGEND系列软件……');
   // g_pLogMgr.Add(VMProtectDecryptStringA(PChar(Format('最高限制: %d 人', [MAX_GAME_USER]))));
   g_pLogMgr.Add('程序名称: 角色网关');
@@ -350,7 +352,7 @@ begin
   if szStr <> '' then
     g_pLogMgr.Add(PChar('配套网关: ' + szStr));
 
-    PInteger(nil)^ := 0;;
+
 
 end;
 
@@ -601,6 +603,7 @@ var
   sData: string;
   wIdent: Word;
 begin
+ g_pLogMgr.Add('MyMessage');
   wIdent := HiWord(MsgData.From);
   // sData := StrPas(MsgData.CopyDataStruct^.lpData);
   case wIdent of
@@ -619,35 +622,12 @@ end;
 //--------------------------------------------------------------------------------------------------
 // Simple VCL application unhandled exception handler using JclDebug
 //--------------------------------------------------------------------------------------------------
- procedure writeWorkLog(sqlstr: string);
-var filev: TextFile;
-  ss: string;
-begin
 
-  sqlstr:=DateTimeToStr(Now)+' Log: '+sqlstr;
-  ss:=extractFilePath(Application.ExeName)+'\log.txt';
-
-   // MemoLog.Lines.Add(DateTimeToStr(Now));
-  if FileExists(ss) then
-  begin
-  g_pLogMgr.Add(PChar('2')+ss);
-    AssignFile(filev, ss);
-    append(filev);
-    writeln(filev, sqlstr);
-  end else begin
-    AssignFile(filev, ss);
-    ReWrite(filev);
-    writeln(filev, sqlstr);
-    g_pLogMgr.Add(PChar('3')+ss);
-  end;
-  CloseFile(filev);
-end;
 procedure TFormMain.ApplicationEventsException(Sender: TObject; E: Exception);
 var filev: TextFile;
   ss: string;
 begin
-  ss:=extractFilePath(Application.ExeName)+'\log.txt';
-      MemoLog.Lines.Add(ss);
+
 
   // Log time stamp
    // writeWorkLog('1111111111111111111');

@@ -118,7 +118,7 @@ end;
 
 constructor TIOCPServer.Create();
 begin
-  //ÄÚ´æĞ¹Â©´íÎóÔ­Òò
+  //å†…å­˜æ³„æ¼é”™è¯¯åŸå› 
   //FUserList := TUserManager.Create(MAX_GAME_USER);
 
 
@@ -166,7 +166,7 @@ begin
       FOnStartEvent(self);
   except
     on E: Exception do
-      raise EIOCPServer.CreateFmt('´ò¿ª·şÎñÊ§°Ü£º%s...', [E.Message]);
+      raise EIOCPServer.CreateFmt('æ‰“å¼€æœåŠ¡å¤±è´¥ï¼š%s...', [E.Message]);
   end;
 end;
 
@@ -193,7 +193,7 @@ begin
     FIsStarted := False;
   except
     on E: Exception do
-      raise EIOCPServer.CreateFmt('¹Ø±Õ·şÎñÊ§°Ü£¬´íÎóÏûÏ¢Îª£º%s...', [E.Message]);
+      raise EIOCPServer.CreateFmt('å…³é—­æœåŠ¡å¤±è´¥ï¼Œé”™è¯¯æ¶ˆæ¯ä¸ºï¼š%s...', [E.Message]);
   end;
 end;
 
@@ -262,9 +262,9 @@ end;
 
 constructor TIOCPManager.Create();
 begin
-  g_pLogMgr.Add('ÕıÔÚÍ£Ö¹·şÎñ...3');
+  g_pLogMgr.Add('æ­£åœ¨åœæ­¢æœåŠ¡...3');
   FIOCPServer := TIOCPServer.Create;
-  //FServerInfoList := FIOCPServer.FAcceptExSocket.ServerInfo;
+  FServerInfoList := FIOCPServer.FAcceptExSocket.ServerInfo;
   FCount := 0;
 end;
 

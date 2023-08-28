@@ -5,6 +5,6 @@
     <Transaction>2019/02/17 19:55:46.001.pas,D:\LEGEND for HGE\SelGate\uDep.pas=</Transaction>
     <Transaction>2019/02/17 19:55:58.689.pas,D:\LEGEND for HGE\Common\VMProtectSDK.pas=</Transaction>
     <Transaction>2023/08/27 08:34:37.000.930,=D:\soft\LEGEND for HGE\SelGate\Unit1.pas</Transaction>
-    <Transaction>2023/08/27 08:35:18.000.917,D:\soft\LEGEND for HGE\SelGate\Unit1.pas=D:\soft\LEGEND for HGE\SelGate\mlog.pas</Transaction>
+    <Transaction>2023/08/27 08:35:18.000.917,D:\soft\LEGEND for HGE\SelGate\mlog.pas=D:\soft\LEGEND for HGE\SelGate\Unit1.pas</Transaction>
   </Transactions>
 </BorlandProject>

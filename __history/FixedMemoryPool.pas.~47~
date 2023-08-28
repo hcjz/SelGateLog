@@ -125,41 +125,45 @@ begin
   // 构造内存管理链表
   FMemTempHeader := BaseMemoryNode;
 
+
   PTRMemNode := BaseMemoryNode;
   PTRMemNode.Index := MemoryIndex;
   PTRMemNode.PriorNode := nil;
+
   PTRMemNode.NextNode := PXMemNode(Integer(PTRMemNode) + SizeOf(TXMemNode));
+
   PTRMemNode.MemItem := BaseMemory;
 
   BaseMemory.MemNode := PTRMemNode;
   BaseMemory.MemBuffer := PChar(Integer(BaseMemory) + SizeOf(TXMemItem));
 
   PTRMemory := PChar(BaseMemory);
+
  a:=integer(PTRMemory);
   Inc(PTRMemNode);
   Inc(PTRMemory, FBlockSize);
 
   try
-//    for i := 0 to BaseBlockCount - 3 do
-//    begin
-//
-//      PTRMemNode.PriorNode := FMemTempHeader;
-//      PTRMemNode.MemItem := PXMemItem(PTRMemory);
-//      PTRMemNode.Index := MemoryIndex + i + 1;
-//      PXMemItem(PTRMemory).MemNode := PTRMemNode;
-//      a := Integer(PXMemItem(PTRMemory));
-//      PXMemItem(PTRMemory).MemBuffer := PChar(Integer(PTRMemory));
-//
-//      PXMemItem(PTRMemory).MemBuffer :=
-//        PChar(Integer(PTRMemory) + SizeOf(TXMemItem));
-//
-//      FMemTempHeader := PTRMemNode;
-//      Inc(PTRMemNode);
-//      Inc(PTRMemory, FBlockSize);
-//
-//      FMemTempHeader.NextNode := PTRMemNode;
-//
-//    end;
+    for i := 0 to BaseBlockCount - 3 do
+    begin
+
+      PTRMemNode.PriorNode := FMemTempHeader;
+      PTRMemNode.MemItem := PXMemItem(PTRMemory);
+      PTRMemNode.Index := MemoryIndex + i + 1;
+      PXMemItem(PTRMemory).MemNode := PTRMemNode;
+      a := Integer(PXMemItem(PTRMemory));
+      PXMemItem(PTRMemory).MemBuffer := PChar(Integer(PTRMemory));
+
+      PXMemItem(PTRMemory).MemBuffer :=
+        PChar(Integer(PTRMemory) + SizeOf(TXMemItem));
+
+      FMemTempHeader := PTRMemNode;
+      Inc(PTRMemNode);
+      Inc(PTRMemory, FBlockSize);
+
+      FMemTempHeader.NextNode := PTRMemNode;
+
+    end;
   except
     on Exception do
       g_pLogMgr.Add(inttostr(a));
@@ -250,6 +254,7 @@ begin
     FRealBlockCount * SizeOf(TXMemNode));
   if FMemRealHeader = nil then
     raise EFixedMemoryPool.CreateFmt('分配内存管理节点表错误，错误代码为：%d', [GetLastError()]);
+
 
   BuilderMemoryList(FMemRealHeader, FMemory, 1, FRealBlockCount);
 

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, ClientSession,
-  WinSock2, ThreadPool, Protocol, SDK, ExtCtrls;
+  WinSock2, ThreadPool, Protocol, SDK, ExtCtrls,mlog,jcldebug;
 
 type
   TProcMsgThread = class(TTimer)
@@ -187,14 +187,17 @@ begin
   // end;
 end;
 
+
+
 procedure StartService();
+var ml:myLog;
 begin
   g_fServiceStarted := True;
 
   g_ProcMsgThread.Enabled := True;
 
-  g_pLogMgr.Add('ÕýÔÚÆô¶¯·þÎñ ...');
-  SendGameCenterMsg(SG_STARTNOW, _STR_NOW_START);
+  g_pLogMgr.Add('æ­£åœ¨å¯åŠ¨æœåŠ¡ ...');
+ SendGameCenterMsg(SG_STARTNOW, _STR_NOW_START);
 
   g_pConfig.LoadConfig();
 
@@ -207,29 +210,36 @@ begin
       MENU_CONTROL_STOP.Enabled := True;
 
       FormMain.m_xRunServerList := TIOCPManager.Create;
-    
-      FormMain.m_xGameServerList := TGameServerManager.Create;
-
-      FormMain.InitIOCPServer;
+//
+//      FormMain.m_xGameServerList := TGameServerManager.Create;
+//
+//      FormMain.InitIOCPServer;
 
     end;
   except
     on e: exception do
     begin
-     g_pLogMgr.Add(e.StackTrace);
+      g_pLogMgr.Add(e.StackTrace);
       g_pLogMgr.Add(e.ClassName);
-       g_pLogMgr.Add(e.Message);
+      g_pLogMgr.Add(e.Message);
+
+         ml:= mylog.create;
+        ml.log(pchar(e.StackTrace));
+
+
+
+       ml.Free;
     end;
 
   end;
 
-  g_pLogMgr.Add('·þÎñÒÑÆô¶¯³É¹¦...');
+  g_pLogMgr.Add('æœåŠ¡å·²å¯åŠ¨æˆåŠŸ...');
 
-  SetTimer(g_hMainWnd, _IDM_TIMER_KEEP_ALIVE, 4 * 1000, Pointer(@OnTimerProc));
-  // Ã¿¼ä¸ô4ÃëÖÓÏò·þÎñÆ÷·¢ËÍÒ»´ÎÐÄÌøÊý¾Ý
-  SetTimer(g_hMainWnd, _IDM_TIMER_THREAD_INFO, 1000, Pointer(@OnTimerProc));
+  //SetTimer(g_hMainWnd, _IDM_TIMER_KEEP_ALIVE, 4 * 1000, Pointer(@OnTimerProc));
+  // æ¯é—´éš”4ç§’é’Ÿå‘æœåŠ¡å™¨å‘é€ä¸€æ¬¡å¿ƒè·³æ•°æ®
+  //SetTimer(g_hMainWnd, _IDM_TIMER_THREAD_INFO, 1000, Pointer(@OnTimerProc));
 
-  FormMain.MENU_VIEW_HELP_ABOUTClick(nil);
+ // FormMain.MENU_VIEW_HELP_ABOUTClick(nil);
   SendGameCenterMsg(SG_STARTOK, _STR_STARTED);
 end;
 
@@ -238,8 +248,8 @@ var
   i: Integer;
 begin
   g_fServiceStarted := False;
-  g_pLogMgr.Add('ÕýÔÚÍ£Ö¹·þÎñ...');
-  KillTimer(g_hMainWnd, _IDM_TIMER_KEEP_ALIVE); // ÐÄÌøÊý¾Ý¼ì²â²»µ½Í£Ö¹
+  g_pLogMgr.Add('æ­£åœ¨åœæ­¢æœåŠ¡...');
+  KillTimer(g_hMainWnd, _IDM_TIMER_KEEP_ALIVE); // å¿ƒè·³æ•°æ®æ£€æµ‹ä¸åˆ°åœæ­¢
 
   with FormMain do
   begin
@@ -264,10 +274,10 @@ begin
 
   g_ProcMsgThread.Enabled := False;
 
-  g_pLogMgr.Add('·þÎñÍ£Ö¹³É¹¦...');
+  g_pLogMgr.Add('æœåŠ¡åœæ­¢æˆåŠŸ...');
 end;
 
-// ÊµÏÖ·¢ËÍÐÄÌøÊý¾Ý°ü¹¦ÄÜ
+// å®žçŽ°å‘é€å¿ƒè·³æ•°æ®åŒ…åŠŸèƒ½
 procedure KeepAlive();
 var
   i: Integer;
@@ -324,35 +334,35 @@ begin
       FormMain.GridSocketInfo.Cells[1, nRow] := IntToStr(PSI^.nPort);
       case PSI.pClient.m_tSockThreadStutas of
         stConnecting:
-          FormMain.GridSocketInfo.Cells[2, nRow] := 'Á¬½ÓÖÐ..';
+          FormMain.GridSocketInfo.Cells[2, nRow] := 'è¿žæŽ¥ä¸­..';
         stConnected:
-          FormMain.GridSocketInfo.Cells[2, nRow] := 'ÒÑÁ¬½Ó';
+          FormMain.GridSocketInfo.Cells[2, nRow] := 'å·²è¿žæŽ¥';
         stTimeOut:
-          FormMain.GridSocketInfo.Cells[2, nRow] := '³¬Ê±';
+          FormMain.GridSocketInfo.Cells[2, nRow] := 'è¶…æ—¶';
       end;
 
       FormMain.StatusBar.Panels[0].Text :=
-        Format('Á¬½Ó: %d/%d', [IOCPAccepter.InUseBlock,
+        Format('è¿žæŽ¥: %d/%d', [IOCPAccepter.InUseBlock,
         IOCPAccepter.MaxInUseBlock]);
 
       if PSI^.pClient.m_dwSendBytes > (1024 * 1000) then
-        StrFmt(@pszBuf[0], '¡ü%fM', [PSI^.pClient.m_dwSendBytes / (1024 * 1000)])
+        StrFmt(@pszBuf[0], 'â†‘%fM', [PSI^.pClient.m_dwSendBytes / (1024 * 1000)])
       else if PSI^.pClient.m_dwSendBytes > 1024 then
-        StrFmt(@pszBuf[0], '¡ü%fK', [PSI^.pClient.m_dwSendBytes / 1024])
+        StrFmt(@pszBuf[0], 'â†‘%fK', [PSI^.pClient.m_dwSendBytes / 1024])
       else
-        StrFmt(@pszBuf[0], '¡ü%dB', [PSI^.pClient.m_dwSendBytes]);
+        StrFmt(@pszBuf[0], 'â†‘%dB', [PSI^.pClient.m_dwSendBytes]);
       PSI^.pClient.m_dwSendBytes := 0;
 
       nLen := StrLen(pszBuf);
       pszBuf[nLen] := ' ';
       pszBuf[nLen + 1] := ' ';
       if PSI^.pClient.m_dwRecvBytes > (1024 * 1000) then
-        StrFmt(@pszBuf[nLen + 2], '¡ý%fM',
+        StrFmt(@pszBuf[nLen + 2], 'â†“%fM',
           [PSI^.pClient.m_dwRecvBytes / (1024 * 1000)])
       else if PSI^.pClient.m_dwRecvBytes > 1024 then
-        StrFmt(@pszBuf[nLen + 2], '¡ý%fK', [PSI^.pClient.m_dwRecvBytes / 1024])
+        StrFmt(@pszBuf[nLen + 2], 'â†“%fK', [PSI^.pClient.m_dwRecvBytes / 1024])
       else
-        StrFmt(@pszBuf[nLen + 2], '¡ý%dB', [PSI^.pClient.m_dwRecvBytes]);
+        StrFmt(@pszBuf[nLen + 2], 'â†“%dB', [PSI^.pClient.m_dwRecvBytes]);
       PSI^.pClient.m_dwRecvBytes := 0;
 
       FormMain.GridSocketInfo.Cells[3, nRow] := pszBuf;

@@ -124,12 +124,14 @@ var
 begin
   // 构造内存管理链表
   FMemTempHeader := BaseMemoryNode;
-    g_pLogMgr.Add('test0');
+
 
   PTRMemNode := BaseMemoryNode;
   PTRMemNode.Index := MemoryIndex;
   PTRMemNode.PriorNode := nil;
+
   PTRMemNode.NextNode := PXMemNode(Integer(PTRMemNode) + SizeOf(TXMemNode));
+
   PTRMemNode.MemItem := BaseMemory;
 
   BaseMemory.MemNode := PTRMemNode;
@@ -140,8 +142,9 @@ begin
  a:=integer(PTRMemory);
   Inc(PTRMemNode);
   Inc(PTRMemory, FBlockSize);
-
-  try
+  BaseBlockCount:=4;
+      g_pLogMgr.Add('BaseMemoryNode:'+inttostr(integer(BaseMemoryNode)));
+            g_pLogMgr.Add('count:'+inttostr(BaseBlockCount));
     for i := 0 to BaseBlockCount - 3 do
     begin
 
@@ -162,11 +165,7 @@ begin
       FMemTempHeader.NextNode := PTRMemNode;
 
     end;
-  except
-    on Exception do
-      g_pLogMgr.Add(inttostr(a));
-
-  end;
+     g_pLogMgr.Add('FMemTempHeader:'+inttostr(integer(FMemTempHeader)));
    g_pLogMgr.Add(inttostr(a));
   PTRMemNode.PriorNode := FMemTempHeader;
   PTRMemNode.Index := FMemTempHeader.Index + 1;
@@ -253,7 +252,7 @@ begin
   if FMemRealHeader = nil then
     raise EFixedMemoryPool.CreateFmt('分配内存管理节点表错误，错误代码为：%d', [GetLastError()]);
 
-
+  g_pLogMgr.Add('test2');
   BuilderMemoryList(FMemRealHeader, FMemory, 1, FRealBlockCount);
 
   FFreeMemNode := FMemRealHeader;
@@ -261,6 +260,7 @@ begin
   FInUseBlock := 0;
   FMaxInUseBlock := 0;
   InitializeCriticalSection(FMemLock);
+
 
 end;
 
